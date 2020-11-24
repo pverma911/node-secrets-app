@@ -1,4 +1,4 @@
-require('dotenv').config();             // require dotenv // imp to declare first
+require('dotenv').config();             
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -14,7 +14,7 @@ const findOrCreate = require("mongoose-findorcreate");
 // const bcrypt = require("bcrypt");    // salting +hashing
 // const saltRounds = 10; // used with bcrypt
 const app = express();
-
+const port = process.env.PORT || 3000
 // console.log(process.env.API_KEY);   // process.... is the enviornment variable
 
 app.set('view engine', 'ejs');
@@ -27,8 +27,8 @@ app.use(express.static("public"));
 
 app.use(session({    // Session initialization // more options in docx 
   secret: 'keyboard cat.',
-  resave: false,   // read in docs what they mean
-  saveUninitialized: false, // false mean we don't store empty sessions
+  resave: false,   
+  saveUninitialized: false, // don't store empty sessions
   // cookie: { secure: true }
 }));
 
@@ -51,8 +51,8 @@ const userSchema = new mongoose.Schema({ // Modifying schema to make it actual m
 userSchema.plugin(passportLocalMongoose); // Used to salt our passwords and to save our users in Mongo
 userSchema.plugin(findOrCreate); // findorcreate package usage
 
-// var secret = "Thisisourlittlesecret."; //ENCRYPTN KEY  // Used to encrypt // goes to .env
-// userSchema.plugin(encrypt, { secret: process.env.SECRET , encryptedFields: ["password"]}); // This encryption was only to demonstrate mmongoose-encryption but hashing is more superior so we use that.
+// var secret = "Thisisourlittlesecret."; 
+// userSchema.plugin(encrypt, { secret: process.env.SECRET , encryptedFields: ["password"]}); 
 
 
 const User = new mongoose.model("User", userSchema);
@@ -75,9 +75,9 @@ passport.deserializeUser(function(id, done) {
 // passport.deserializeUser(User.deserializeUser());  // Destroy it
 
 passport.use(new GoogleStrategy({  // part of OAuth
-  clientID: process.env.CLIENT_ID,  // process.env is the variables from .env files
+  clientID: process.env.CLIENT_ID,  
   clientSecret: process.env.CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/auth/google/secrets", // the one you specified in google
+  callbackURL: "http://localhost:3000/auth/google/secrets", 
   userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
 },
 function(accessToken, refreshToken, profile, cb) { //accessToken allows us to get user's data
@@ -123,7 +123,7 @@ app.get("/register", function(req,res){
 
 app.get("/secrets", function(req,res){      // To find the secrets you typed
 
-  User.find({"secret":{$ne:null}}, function(err,foundUser){       // WHERE secret is NOT NULL
+  User.find({"secret":{$ne:null}}, function(err,foundUser){       
     if(err){
       console.log(err)
     }
@@ -192,7 +192,7 @@ app.post("/register", function(req,res){
       res.redirect("/register");
     }
     else{                     // If no errors then authenticate
-      passport.authenticate("local")(req,res, function(){ // all code inside is the code that runs only if auth is successful
+      passport.authenticate("local")(req,res, function(){
         res.redirect("/secrets");
       })
     }
@@ -228,7 +228,7 @@ app.post("/login", function(req,res){
 
 
 
-// OLD ONES[Before Sessions and Cookies]
+
 // app.post("/register", function(req,res){
 //   bcrypt.hash(req.body.password, saltRounds, function(err, hash) { // Store hash in your password DB.
 //     const newUser = new User({
@@ -248,8 +248,6 @@ app.post("/login", function(req,res){
   
 // });
 
-
-//  //////////////// Auth used here ///////////////
 
 // app.post("/login", function(req,res){        
 //   const username = req.body.username;
@@ -287,6 +285,6 @@ app.post("/login", function(req,res){
 
 
 
-app.listen(3000, function() {
-  console.log("Server started on port 3000");
+app.listen(port, function() {
+  console.log("Server started");
 });
